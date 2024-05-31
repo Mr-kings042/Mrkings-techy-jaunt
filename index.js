@@ -24,6 +24,8 @@ class Transaction{
         }
     }
 }
+// Bank Account class
+
 class BankAccount{
 
     constructor(AccountNumber,FirstName,LastName,DailyWithdrawal){
