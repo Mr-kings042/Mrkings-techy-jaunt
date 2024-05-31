@@ -41,5 +41,5 @@ const AccountSchema = new mongoose.Schema(
         ref: 'Transaction' }]
   });
 
-
+// export the model
   module.exports = mongoose.model('Account',AccountSchema);
