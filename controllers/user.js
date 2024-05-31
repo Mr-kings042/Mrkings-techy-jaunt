@@ -9,7 +9,7 @@ const JWTSECRET = process.env.JWTSECRET;
 
 const getUsers = asynchandler(async (req,res) => {
     try {
-        const users = await Owner.find();
+        const users = await User.find();
         res.status(200).json(users);
     } catch (error) {
         console.log(error.message);
