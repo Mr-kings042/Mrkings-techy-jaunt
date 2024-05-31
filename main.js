@@ -34,7 +34,7 @@ app.use('/accounts', require('./routes/Account'));
 app.use('/transactions', require('./routes/Transaction'));
 
 
-// testing server port
+// testing server port and displaying to console
 app.listen(port, () => {
     console.log(`The server is running on port; http://localhost: ${port}...`)
 });
