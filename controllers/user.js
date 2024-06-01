@@ -172,7 +172,7 @@ const Userlogin = asynchandler(async (req, res) => {
         });
     }
 
-    const user = await Owner.findOne({ email,username })
+    const user = await User.findOne({ email,username })
         .catch((error) => {
             res.status(400).json({
                 error: error.message

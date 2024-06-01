@@ -39,7 +39,9 @@ const AccountSchema = new mongoose.Schema(
     transactions: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Transaction' }]
-  });
+  },
+  { timestamps: true }
+);
 
 // export the model
   module.exports = mongoose.model('Account',AccountSchema);

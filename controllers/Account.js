@@ -22,21 +22,6 @@ const createAccount = asynchandler (async (req,res) =>{
       return res.status(400).json({ 
         error: 'AccountNumber, FirstName and LastName required'});
     }
-    // check if there is an existing account with same number and name
-    try {
-      const existingAccount = await Account.find({ 
-        accountNumber,  firstName, lastName});
-  
-      if (existingAccount) {
-        return res.status(400).json({ 
-          error: 'AccountNumber and Name already exists' });
-      }
-     
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ 
-        error: 'Error creating account' });
-    }
   
     const newAccount = new Account({
          accountNumber,
