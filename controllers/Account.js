@@ -1,8 +1,11 @@
 const asynchandler = require('express-async-handler');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const Account = require('../models/Account');
 const Transaction = require('../models/Transaction');
 
+const JWTSECRET = process.env.JWTSECRET;
 
 const getAccounts = asynchandler(async (req,res) =>{
     try {
@@ -17,16 +20,35 @@ const getAccounts = asynchandler(async (req,res) =>{
 });
 
 const createAccount = asynchandler (async (req,res) =>{
-    const { accountNumber, firstName, lastName } = req.body;
-    if(!accountNumber || !firstName || !lastName){
+    const { accountNumber,name, email, password } = req.body;
+    if(!accountNumber || !name || !email || !password){
       return res.status(400).json({ 
-        error: 'AccountNumber, FirstName and LastName required'});
+        error: 'AccountNumber, Name, Email and Password required'});
     }
+    // // check if there is an existing account with same number and name
+    try {
+      const existingAccount = await Account.find({ 
+        accountNumber,name, email});
+  
+      if (existingAccount) {
+        return res.status(400).json({ 
+          error: 'AccountNumber, Email and  Name already exists' });
+      }
+     
+    }catch (error) {
+      console.log(error);
+      res.status(500).json({ 
+        error: 'Error creating account' });
+    }
+
+    // hash users password
+const hashPassword = await bcrypt.hash(password, 10);
   
     const newAccount = new Account({
          accountNumber,
-         firstName, 
-         lastName });
+         name, 
+         email,
+        password: hashPassword});
     await newAccount.save();
   
     res.status(201).json(newAccount);
@@ -42,23 +64,41 @@ const getAccount = asynchandler(async (req,res) =>{
             error: 'Account not found' 
            });
        }
+       res.status(200).json(account); //display account
      })
       .catch ((error) => {
        res.status(400).json({ 
          error: 'Error fetching account' 
        });
      });
-     res.status(200).json(account); //display account
+     
 });
 
 const updateAccount = asynchandler(async (req,res) =>{
     const accountId = req.params.id;
-    const {firstName,lastName,dailyWithdrawalLimit} = req.body;
-  
- 
+    const {email,name,dailyWithdrawalLimit} = req.body;
+
+    // check if account exist
+    await Account.findById(accountId)
+        .then((account) => {
+            if (!account) {
+                return res.status(404).json({
+                    error: "account not Found"
+                });
+            }
+        })
+        .catch((error) => {
+            res.status(400).json({
+                error: error.message
+            });
+        });
+//  find account and update the name,email,and dailywithdrawal limit
+
     const account = await Account.findByIdAndUpdate(
         accountId,
-        {firstName,lastName,dailyWithdrawalLimit},
+        {name:name,
+          email: email,
+          dailyWithdrawalLimit: dailyWithdrawalLimit},
          { new: true }  // Return updated account
         ).catch((error) => {
             res.status(400).json({
@@ -71,7 +111,15 @@ const updateAccount = asynchandler(async (req,res) =>{
 
 const deleteAccount = asynchandler(async (req, res) =>{
     const accountId = req.params.id;
-               
+// check if user id is valid
+    const isUserIDValid = mongoose.Types.ObjectId.isValid(userID);
+
+    if (!isUserIDValid) {
+        return res.status(400).json({
+            error: "Invalid User ID"
+        });
+    }
+            //check if accound  is avaliable  
 const account = await Account.findById(accountId)
 .then((account) => {
     if (!account) {
@@ -216,6 +264,37 @@ const getAccountDeposit = asynchandler(async (req,res) =>{
     }
 });
 
+const Userlogin = asynchandler(async (req, res) => {
+  const {username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+      return res.status(400).json({
+          error: "Username, Email and Password fields are required"
+      });
+  }
+
+  const user = await User.findOne({ email,username })
+      .catch((error) => {
+          res.status(400).json({
+              error: error.message
+          });
+      });
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+      return res.status(400).json({
+          error: "Incorrect Password provided"
+      });
+  }
+
+  const token = jwt.sign({ 
+      id: user._id, email: user.email }, JWTSECRET, { expiresIn: '5h' });
+  res.status(200).json({
+      token: token
+  })
+});
+
+
 module.exports = {
     getAccounts,
     createAccount,
@@ -225,5 +304,6 @@ module.exports = {
     getAccountTransactions,
     getAccountBalance,
     getAccountDeposit,
-    getAccountwithdrawals
-};
+    getAccountwithdrawals,
+     Userlogin
+}
