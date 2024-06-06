@@ -20,26 +20,34 @@ const getAccounts = asynchandler(async (req,res) =>{
 });
 
 const createAccount = asynchandler (async (req,res) =>{
-    const { accountNumber,name, email, password } = req.body;
-    if(!accountNumber || !name || !email || !password){
+    const { name, email, password } = req.body;
+// function to generate a random 10 digit account number
+    const generateAccountNumber = () => {
+      return Math.random().toString().slice(2,12);
+    };
+const accountNumber = generateAccountNumber();
+
+console.log(accountNumber);
+
+    if( !name || !email || !password){
       return res.status(400).json({ 
-        error: 'AccountNumber, Name, Email and Password required'});
+        error: 'Name, Email and Password required'});
     }
-    // // check if there is an existing same account,name and email
-    try {
-      const existingAccount = await Account.find({ 
-        accountNumber,name, email});
+    // // // check if there is an existing same account,name and email
+    // try {
+    //   const existingAccount = await Account.find({ 
+    //    name, email});
   
-      if (existingAccount) {
-        return res.status(400).json({ 
-          error: 'AccountNumber, Email and  Name already exists' });
-      }
+    //   if (existingAccount) {
+    //     return res.status(400).json({ 
+    //       error:  'Email and  Name already exists' });
+    //   }
      
-    }catch (error) {
-      console.log(error);
-      res.status(500).json({ 
-        error: 'Error creating account' });
-    }
+    // }catch (error) {
+    //   console.log(error);
+    //   res.status(500).json({ 
+    //     error: 'Error while creating account' });
+    // }
 
     // hash users password
 const hashPassword = await bcrypt.hash(password, 10);
