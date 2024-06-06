@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "Transactions Api",
+			"name": "Transactions",
 			"item": [
 				{
 					"name": "All transactions",
@@ -276,121 +276,14 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "Users",
-			"item": [
-				{
-					"name": "All Users",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:5000/user/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"user",
-								""
-							]
-						}
-					},
-					"response": []
 				},
 				{
-					"name": "Create User",
+					"name": "User login",
 					"request": {
-						"auth": {
-							"type": "noauth"
-						},
 						"method": "POST",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"username\" : \"Mrs kings\",\r\n    \"email\": \"qrkings@gmail.com\",\r\n        \"password\": \"qings049870\"\r\n\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "http://localhost:5000/users/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"users",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update User",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:5000/bankAccount",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"bankAccount"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "User Detail",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NWEzYjg1ZjNlNjAwZmQ1ZjFkYWM0ZCIsImVtYWlsIjoicXJraW5nc0BnbWFpbC5jb20iLCJpYXQiOjE3MTcyNjg1MTAsImV4cCI6MTcxNzI4NjUxMH0.dEajSSo96Q68OKUf_BaGVh37OOi9lR-SlQneOWcePOg",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:5000/users/detail/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"users",
-								"detail",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete User",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:5000/accounts/",
+							"raw": "http://localhost:5000/accounts/login/",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -398,39 +291,8 @@
 							"port": "5000",
 							"path": [
 								"accounts",
+								"login",
 								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "User Login",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n     \"username\" : \"mrkings\",\r\n    \"email\": \"mrkings@gmail.com\",\r\n    \"password\": \"kings042\"\r\n\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:5000/users/login",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"users",
-								"login"
 							]
 						}
 					},
