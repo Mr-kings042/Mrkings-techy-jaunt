@@ -49,7 +49,7 @@ const hashPassword = await bcrypt.hash(password, 10);
 });
 
 const getAccount = asynchandler(async (req,res) =>{
-   const accountId = req.params.id;
+   const accountId = req.user.id;
 //    check if the account Id is correct
    const account = await Account.findById(accountId)
     .then((account) => {
