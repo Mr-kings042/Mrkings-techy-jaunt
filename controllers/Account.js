@@ -48,7 +48,7 @@ const hashPassword = await bcrypt.hash(password, 10);
     res.status(201).json(newAccount);
 });
 
-const getAccount = asynchandler(async (req,res) =>{
+const getAccount = asynchandler(async (req,res) =>{23
    const accountId = req.user.id;
 //    check if the account Id is correct
    const account = await Account.findById(accountId)
@@ -300,4 +300,4 @@ module.exports = {
     getAccountDeposit,
     getAccountwithdrawals,
      Userlogin
-}
+};
