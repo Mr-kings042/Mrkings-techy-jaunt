@@ -273,22 +273,22 @@ const getAccountDeposit = asynchandler(async (req,res) =>{
 });
 
 const Userlogin = asynchandler(async (req, res) => {
-  const {username, email, password } = req.body;
+  const {name, email, password } = req.body;
 
-  if (!username || !email || !password) {
+  if (!name || !email || !password) {
       return res.status(400).json({
           error: "Username, Email and Password fields are required"
       });
   }
 
-  const user = await User.findOne({ email,username })
+  const account = await Account.findOne({ email,name })
       .catch((error) => {
           res.status(400).json({
               error: error.message
           });
       });
 
-  const passwordMatch = await bcrypt.compare(password, user.password);
+  const passwordMatch = await bcrypt.compare(password, account.password);
   if (!passwordMatch) {
       return res.status(400).json({
           error: "Incorrect Password provided"
@@ -296,7 +296,7 @@ const Userlogin = asynchandler(async (req, res) => {
   }
 
   const token = jwt.sign({ 
-      id: user._id, email: user.email }, JWTSECRET, { expiresIn: '5h' });
+      id: account._id, email: account.email }, JWTSECRET, { expiresIn: '5h' });
   res.status(200).json({
       token: token
   })
