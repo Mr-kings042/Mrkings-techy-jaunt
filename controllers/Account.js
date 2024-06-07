@@ -33,21 +33,7 @@ console.log(accountNumber);
       return res.status(400).json({ 
         error: 'Name, Email and Password required'});
     }
-    // // // check if there is an existing same account,name and email
-    // try {
-    //   const existingAccount = await Account.find({ 
-    //    name, email});
-  
-    //   if (existingAccount) {
-    //     return res.status(400).json({ 
-    //       error:  'Email and  Name already exists' });
-    //   }
-     
-    // }catch (error) {
-    //   console.log(error);
-    //   res.status(500).json({ 
-    //     error: 'Error while creating account' });
-    // }
+   
 
     // hash users password
 const hashPassword = await bcrypt.hash(password, 10);

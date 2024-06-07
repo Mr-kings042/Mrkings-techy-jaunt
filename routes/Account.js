@@ -18,7 +18,7 @@ const router = express.Router();
 
 router.get("/", verifyToken, getAccounts);
 router.post("/",  createAccount);
-router.get("/:id", verifyToken, getAccount);
+router.get("/detail/", verifyToken, getAccount);
 router.put("/:id", verifyToken, updateAccount);
 router.delete("/:id", verifyToken, deleteAccount);
 router.get("/transactions/:id", verifyToken, getAccountTransactions);
