@@ -69,8 +69,8 @@ const getAccount = asynchandler(async (req,res) =>{23
 });
 
 const updateAccount = asynchandler(async (req,res) =>{
-    const accountId = req.params.id;
-    const {email,name,dailyWithdrawalLimit} = req.body;
+    const accountId = req.user.id;
+    const {email,name} = req.body;
 
     // check if account exist
     await Account.findById(accountId)
@@ -91,8 +91,7 @@ const updateAccount = asynchandler(async (req,res) =>{
     const account = await Account.findByIdAndUpdate(
         accountId,
         {name:name,
-          email: email,
-          dailyWithdrawalLimit: dailyWithdrawalLimit},
+          email: email},
          { new: true }  // Return updated account
         ).catch((error) => {
             res.status(400).json({
@@ -140,7 +139,7 @@ res.status(200).json({
     message: 'Account deleted successfully' });
 });
 const getAccountTransactions = asynchandler(async(req, res) =>{
-    const accountId = req.params.id;
+    const accountId = req.user.id;
   const account = await Account.findById(accountId);
   if (!account) {
     return res.status(404).json({
@@ -151,7 +150,7 @@ const getAccountTransactions = asynchandler(async(req, res) =>{
   res.status(200).json(transactions);
 });
 const getAccountBalance = asynchandler (async (req,res) =>{
-    const accountId = req.params.id;
+    const accountId = req.user.id;
 
     // check account ID
    const account = await Account.findById(accountId)
@@ -172,8 +171,8 @@ const getAccountBalance = asynchandler (async (req,res) =>{
 })
 
 const getAccountwithdrawals = asynchandler(async (req,res) =>{
-    const accountId = req.params.id;
-    const amount = req.body;
+    const accountId = req.user.id;
+    const {amount} = req.body;
 
 //   check if amount input is a number and check if amount is greater than account balance
     if (!amount || typeof amount !== 'number') {
@@ -224,8 +223,8 @@ const getAccountwithdrawals = asynchandler(async (req,res) =>{
     }
 });
 const getAccountDeposit = asynchandler(async (req,res) =>{
-    const accountId = req.params.id;
-    const amount = req.body.amount;
+    const accountId = req.user.id;
+    const{ amount} = req.body.amount;
     account.balance += amount;
 
     if (!amount || typeof amount !== 'number' && amount <= 0) {
