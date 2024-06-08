@@ -1,8 +1,11 @@
 const asynchandler = require('express-async-handler');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const Account = require('../models/Account');
 const Transaction = require('../models/Transaction');
 
+const JWTSECRET = process.env.JWTSECRET;
 
 const getAccounts = asynchandler(async (req,res) =>{
     try {
@@ -17,38 +20,36 @@ const getAccounts = asynchandler(async (req,res) =>{
 });
 
 const createAccount = asynchandler (async (req,res) =>{
-    const { accountNumber, firstName, lastName } = req.body;
-    if(!accountNumber || !firstName || !lastName){
+    const { name, email, password } = req.body;
+// function to generate a random 10 digit account number
+    const generateAccountNumber = () => {
+      return Math.random().toString().slice(2,12);
+    };
+const accountNumber = generateAccountNumber();
+
+console.log(accountNumber);
+
+    if( !name || !email || !password){
       return res.status(400).json({ 
-        error: 'AccountNumber, FirstName and LastName required'});
+        error: 'Name, Email and Password required'});
     }
-    // check if there is an existing account with same number and name
-    try {
-      const existingAccount = await Account.find({ 
-        accountNumber,  firstName, lastName});
-  
-      if (existingAccount) {
-        return res.status(400).json({ 
-          error: 'AccountNumber and Name already exists' });
-      }
-     
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ 
-        error: 'Error creating account' });
-    }
+   
+
+    // hash users password
+const hashPassword = await bcrypt.hash(password, 10);
   
     const newAccount = new Account({
          accountNumber,
-         firstName, 
-         lastName });
+         name, 
+         email,
+        password: hashPassword});
     await newAccount.save();
   
     res.status(201).json(newAccount);
 });
 
-const getAccount = asynchandler(async (req,res) =>{
-   const accountId = req.params.id;
+const getAccount = asynchandler(async (req,res) =>{23
+   const accountId = req.user.id;
 //    check if the account Id is correct
    const account = await Account.findById(accountId)
     .then((account) => {
@@ -57,23 +58,40 @@ const getAccount = asynchandler(async (req,res) =>{
             error: 'Account not found' 
            });
        }
+       res.status(200).json(account); //display account
      })
       .catch ((error) => {
        res.status(400).json({ 
          error: 'Error fetching account' 
        });
      });
-     res.status(200).json(account); //display account
+     
 });
 
 const updateAccount = asynchandler(async (req,res) =>{
-    const accountId = req.params.id;
-    const {firstName,lastName,dailyWithdrawalLimit} = req.body;
-  
- 
+    const accountId = req.user.id;
+    const {email,name} = req.body;
+
+    // check if account exist
+    await Account.findById(accountId)
+        .then((account) => {
+            if (!account) {
+                return res.status(404).json({
+                    error: "account not Found"
+                });
+            }
+        })
+        .catch((error) => {
+            res.status(400).json({
+                error: error.message
+            });
+        });
+//  find account and update the name,email,and dailywithdrawal limit
+
     const account = await Account.findByIdAndUpdate(
         accountId,
-        {firstName,lastName,dailyWithdrawalLimit},
+        {name:name,
+          email: email},
          { new: true }  // Return updated account
         ).catch((error) => {
             res.status(400).json({
@@ -85,9 +103,17 @@ const updateAccount = asynchandler(async (req,res) =>{
 });
 
 const deleteAccount = asynchandler(async (req, res) =>{
-    const accountId = req.params.id;
-               
-const account = await Account.findById(accountId)
+    const accountId = req.user.id;
+// check if user id is valid
+    const isUserIDValid = mongoose.Types.ObjectId.isValid(accountId);
+
+    if (!isUserIDValid) {
+        return res.status(400).json({
+            error: "Invalid User ID"
+        });
+    }
+            //check if accound  is avaliable  
+ await Account.findById(accountId)
 .then((account) => {
     if (!account) {
         return res.status(404).json({
@@ -108,12 +134,11 @@ await Account.findByIdAndDelete(accountId)
 });
 
 
-
 res.status(200).json({ 
     message: 'Account deleted successfully' });
 });
 const getAccountTransactions = asynchandler(async(req, res) =>{
-    const accountId = req.params.id;
+    const accountId = req.user.id;
   const account = await Account.findById(accountId);
   if (!account) {
     return res.status(404).json({
@@ -124,7 +149,7 @@ const getAccountTransactions = asynchandler(async(req, res) =>{
   res.status(200).json(transactions);
 });
 const getAccountBalance = asynchandler (async (req,res) =>{
-    const accountId = req.params.id;
+    const accountId = req.user.id;
 
     // check account ID
    const account = await Account.findById(accountId)
@@ -145,8 +170,8 @@ const getAccountBalance = asynchandler (async (req,res) =>{
 })
 
 const getAccountwithdrawals = asynchandler(async (req,res) =>{
-    const accountId = req.params.id;
-    const amount = req.body;
+    const accountId = req.user.id;
+    const {amount} = req.body;
 
 //   check if amount input is a number and check if amount is greater than account balance
     if (!amount || typeof amount !== 'number') {
@@ -171,9 +196,6 @@ const getAccountwithdrawals = asynchandler(async (req,res) =>{
             error: 'Daily withdrawal limit exceeded' });
       }
     
-    
-
-    
   
     try {
   //  create new transaction
@@ -197,9 +219,9 @@ const getAccountwithdrawals = asynchandler(async (req,res) =>{
     }
 });
 const getAccountDeposit = asynchandler(async (req,res) =>{
-    const accountId = req.params.id;
-    const amount = req.body.amount;
-    account.balance += amount;
+    const accountId = req.user.id;
+    const{ amount} = req.body;
+   
 
     if (!amount || typeof amount !== 'number' && amount <= 0) {
       return res.status(400).json({
@@ -212,9 +234,10 @@ const getAccountDeposit = asynchandler(async (req,res) =>{
             error: 'Account not found'});
         }
     
-  
+     
   
     try {
+      account.balance += amount;
     //   const transaction = await account.deposit(amount);
     const transaction = new Transaction({ 
         type: 'deposit',
@@ -227,9 +250,40 @@ const getAccountDeposit = asynchandler(async (req,res) =>{
       res.status(200).json(transaction); // Return the created transaction object
     } catch (error) {
       return res.status(400).json({
-        error: message}); // Handle potential errors (e.g., negative deposit amount)
+        error: "error depositing to account"}); // Handle potential errors (e.g., negative deposit amount)
     }
 });
+
+const Userlogin = asynchandler(async (req, res) => {
+  const {name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+      return res.status(400).json({
+          error: "Username, Email and Password fields are required"
+      });
+  }
+
+  const account = await Account.findOne({ email,name })
+      .catch((error) => {
+          res.status(400).json({
+              error: error.message
+          });
+      });
+
+  const passwordMatch = await bcrypt.compare(password, account.password);
+  if (!passwordMatch) {
+      return res.status(400).json({
+          error: "Incorrect Password provided"
+      });
+  }
+
+  const token = jwt.sign({ 
+      id: account._id, email: account.email }, JWTSECRET, { expiresIn: '5h' });
+  res.status(200).json({
+      token: token
+  })
+});
+
 
 module.exports = {
     getAccounts,
@@ -240,5 +294,6 @@ module.exports = {
     getAccountTransactions,
     getAccountBalance,
     getAccountDeposit,
-    getAccountwithdrawals
+    getAccountwithdrawals,
+     Userlogin
 };

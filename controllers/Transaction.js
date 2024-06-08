@@ -1,5 +1,5 @@
 const asynchandler = require('express-async-handler');
-const mongoose = require('mongoose');
+const mongoose = require('mongoose');  //import mongoose
 const Transaction = require('../models/Transaction');
 
 const getTransactions = asynchandler (async (req,res) => {
@@ -15,7 +15,7 @@ const getTransactions = asynchandler (async (req,res) => {
 });
 
 const getTransaction = asynchandler (async (req,res) => {
-   const transactionID = req.params.id;
+   const transactionID = req.user.id;
   
    
     try {
@@ -36,7 +36,7 @@ const getTransaction = asynchandler (async (req,res) => {
 });
 
 const deleteTransaction = asynchandler (async (req,res) => {
-    const transactionID = req.params.id;
+    const transactionID = req.user.id;
             //find trasaction from  ID   
     const transaction = await Transaction.findById(transactionID)
     .then((transaction) => {

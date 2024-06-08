@@ -28,8 +28,11 @@ const JWTSECRET = process.env.JWTSECRET;
   
 
 
-// creating routes
-app.use('/users', require('./routes/user'));
+// testing my api
+app.get('/', (req, res) => {
+    res.send('Welcome to my API, what is ur name');
+    });
+    // creating routes
 app.use('/accounts', require('./routes/Account'));
 app.use('/transactions', require('./routes/Transaction'));
 
