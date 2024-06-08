@@ -103,7 +103,7 @@ const updateAccount = asynchandler(async (req,res) =>{
 });
 
 const deleteAccount = asynchandler(async (req, res) =>{
-    const accountId = req.params.id;
+    const accountId = req.user.id;
 // check if user id is valid
     const isUserIDValid = mongoose.Types.ObjectId.isValid(userID);
 
@@ -225,7 +225,7 @@ const getAccountwithdrawals = asynchandler(async (req,res) =>{
 const getAccountDeposit = asynchandler(async (req,res) =>{
     const accountId = req.user.id;
     const{ amount} = req.body.amount;
-    account.balance += amount;
+   
 
     if (!amount || typeof amount !== 'number' && amount <= 0) {
       return res.status(400).json({
@@ -238,9 +238,10 @@ const getAccountDeposit = asynchandler(async (req,res) =>{
             error: 'Account not found'});
         }
     
-  
+     
   
     try {
+      account.balance += amount;
     //   const transaction = await account.deposit(amount);
     const transaction = new Transaction({ 
         type: 'deposit',
