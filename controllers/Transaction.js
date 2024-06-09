@@ -1,5 +1,5 @@
 const asynchandler = require('express-async-handler');
-const mongoose = require('mongoose');
+const mongoose = require('mongoose');  //import mongoose
 const Transaction = require('../models/Transaction');
 
 const getTransactions = asynchandler (async (req,res) => {
