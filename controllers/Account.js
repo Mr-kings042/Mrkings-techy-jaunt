@@ -196,9 +196,6 @@ const getAccountwithdrawals = asynchandler(async (req,res) =>{
             error: 'Daily withdrawal limit exceeded' });
       }
     
-    
-
-    
   
     try {
   //  create new transaction
@@ -223,7 +220,7 @@ const getAccountwithdrawals = asynchandler(async (req,res) =>{
 });
 const getAccountDeposit = asynchandler(async (req,res) =>{
     const accountId = req.user.id;
-    const{ amount} = req.body.amount;
+    const{ amount} = req.body;
    
 
     if (!amount || typeof amount !== 'number' && amount <= 0) {
@@ -253,7 +250,7 @@ const getAccountDeposit = asynchandler(async (req,res) =>{
       res.status(200).json(transaction); // Return the created transaction object
     } catch (error) {
       return res.status(400).json({
-        error: message}); // Handle potential errors (e.g., negative deposit amount)
+        error: "error depositing to account"}); // Handle potential errors (e.g., negative deposit amount)
     }
 });
 
