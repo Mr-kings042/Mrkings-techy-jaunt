@@ -105,7 +105,7 @@ const updateAccount = asynchandler(async (req,res) =>{
 const deleteAccount = asynchandler(async (req, res) =>{
     const accountId = req.user.id;
 // check if user id is valid
-    const isUserIDValid = mongoose.Types.ObjectId.isValid(userID);
+    const isUserIDValid = mongoose.Types.ObjectId.isValid(accountId);
 
     if (!isUserIDValid) {
         return res.status(400).json({
@@ -113,7 +113,7 @@ const deleteAccount = asynchandler(async (req, res) =>{
         });
     }
             //check if accound  is avaliable  
-const account = await Account.findById(accountId)
+ await Account.findById(accountId)
 .then((account) => {
     if (!account) {
         return res.status(404).json({
@@ -132,7 +132,6 @@ await Account.findByIdAndDelete(accountId)
         error: 'Error deleting account'
     })
 });
-
 
 
 res.status(200).json({ 
